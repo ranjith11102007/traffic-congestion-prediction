@@ -1,0 +1,45 @@
+# Render Blueprint: one-URL deployment of the API + dashboard.
+#
+# Rendering this via Render Dashboard -> New -> Blueprint requires no build
+# script: the start command migrates the store, then serves both the API and
+# the static dashboard from the same origin ($PORT is injected by Render).
+#
+#   - Free Web Service, ephemeral disk. sqlite:// is a demo store: it resets on
+#     redeploys and is never a production database.
+#   - COLLECTION_ENABLED=true + TRAFFIC_PROVIDER=real starts the live TomTom
+#     scheduler; readings accumulate and the model scores them automatically.
+#   - TRAFFIC_API_KEY is sync:false so the secret is filled in Render's form,
+#     never committed here.
+services:
+  - type: web
+    name: traffic-congestion-prediction
+    runtime: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: alembic upgrade head && uvicorn app.main:app --app-dir backend --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: ENVIRONMENT
+        value: development
+      - key: DATABASE_URL
+        value: sqlite:///./stage7_dev.db
+      - key: FRONTEND_DIR
+        value: frontend
+      - key: DB_FAIL_FAST
+        value: "false"
+      - key: COLLECTION_ENABLED
+        value: "true"
+      - key: COLLECTION_INTERVAL_SECONDS
+        value: "300"
+      - key: AUTO_PREDICT_AFTER_COLLECTION
+        value: "true"
+      - key: TRAFFIC_PROVIDER
+        value: real
+      - key: TRAFFIC_API_VENDOR
+        value: tomtom
+      - key: TRAFFIC_API_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        value: '["null"]'

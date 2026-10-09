@@ -201,7 +201,7 @@ ident_rows = [
     ("Institution / College", N),
     ("Project Guide / Supervisor", N),
     ("Submission Year", "20____"),
-    ("Project Status", "Stages 1-8 complete; 450 automated tests passing"),
+    ("Project Status", "Stages 1-8 complete; 451 automated tests passing"),
 ]
 
 stack_rows = [
@@ -211,7 +211,7 @@ stack_rows = [
     ("Database", "PostgreSQL 14+, SQLAlchemy 2.x, psycopg2", "Env-driven lazy engine; Alembic migrations"),
     ("ML", "NumPy, pandas, scikit-learn, joblib", "Independent package; artifact bundles with provenance"),
     ("API client", "httpx", "Also drives mocked provider contract tests"),
-    ("Testing", "pytest, httpx.MockTransport", "450 tests; isolated SQLite; jsdom browser simulation"),
+    ("Testing", "pytest, httpx.MockTransport", "451 tests; isolated SQLite; jsdom browser simulation"),
 ]
 
 tech_rows = [
@@ -260,13 +260,13 @@ test_rows = [
     ("Backend API / domain tests", "~422 tests at Stage 7 close"),
     ("Stage 7 frontend contract tests", "15 tests (structure, element contract, no secrets)"),
     ("Stage 8 additions", "7 production-guard config tests + 6 frontend XSS/escaping tests"),
-    ("Total (final run)", "450 tests, all passing (plus 2 sklearn warnings)"),
+    ("Total (final run)", "451 tests, all passing (plus 2 sklearn warnings)"),
     ("Compile checks", "python -m compileall -q (backend, ml, migrations, tests); node --check on every frontend/js/*.js"),
 ]
 
 verify_rows = [
     ("Verification", "Outcome"),
-    ("Automated test suite", "450 passed"),
+    ("Automated test suite", "451 passed"),
     ("Open-Meteo live call", "HTTP 200; current.temperature_2m / precipitation / weather_code present"),
     ("TomTom live call", "NOT performed - no TRAFFIC_API_KEY available; covered by mocked contract tests"),
     ("SQLite Alembic round-trip", "upgrade -> downgrade -> re-upgrade verified"),
@@ -278,7 +278,7 @@ verify_rows = [
 
 results_rows = [
     ("Result", "Value"),
-    ("Automated tests", "450 passed (0 failures)"),
+    ("Automated tests", "451 passed (0 failures)"),
     ("Model version", "4.0.0 (RandomForestClassifier, 26 features)"),
     ("Train / test split", "Chronological 80/20 (leakage-safe)"),
     ("Macro F1 (simulated fixture)", "0.7370"),
@@ -375,7 +375,7 @@ def body(story, styles):
         "interface, a background collection scheduler, a dashboard aggregation API, "
         "a static front-end dashboard, and a final hardening pass (production "
         "configuration guard, security review, deployment guide and this report). "
-        "The complete build is verified by 450 automated tests."
+        "The complete build is verified by 451 automated tests."
     )
     bodyp(
         "Honesty is treated as a first-class requirement: the dataset used to train "
@@ -675,7 +675,7 @@ def body(story, styles):
     story.append(make_table(results_rows, [230, W - 230]))
     story.append(Spacer(1, 8))
     bodyp(
-        "Verification detail: the full suite passed 450/450 on the final run "
+        "Verification detail: the full suite passed 451/451 on the final run "
         "(2 benign sklearn warnings). The Alembic round-trip on a fresh database "
         "reached head c3d4e5f6a7b8 with 2 tables, 12 indexes and the unique "
         "(location_id, timestamp) constraint, then downgraded and re-applied "
@@ -684,33 +684,39 @@ def body(story, styles):
         "contract tests instead."
     )
 
-    # --- Benefits -----------------------------------------------------------------------------
-    H1("Benefits")
+    # --- Potential Benefits and Drawbacks ---------------------------------------
+    H1("Potential Benefits and Drawbacks")
+    bodyp(
+        "The problem statement asks specifically what such a system offers and "
+        "what it costs. Benefits are stated first, then the drawbacks a "
+        "responsible deployment must design against."
+    )
+    H2("Potential benefits")
     story.extend(bullets([
-        "Forward-looking, not just descriptive: forecasts answer the question that can change driver behaviour.",
-        "One tested pipeline from any data source: provider abstraction means the storage, prediction and dashboard layers never change when a vendor does.",
-        "Honest by construction: simulated data is always labelled, missing values stay missing, and the model's limitations are displayed beside its forecasts.",
-        "Leakage-safe machine learning: chronological splits, backward-only features and refused leak columns make reported metrics trustworthy at design level.",
-        "Operationally safe: a production configuration guard, one error envelope, classified upstream failures, and an opt-in scheduler.",
-        "Verifiable: 450 automated tests, compile checks, and documented live-endpoint verification where credentials permitted.",
+        "Forward-looking, not just descriptive: forecasts answer the question that can change driver behaviour - reroute before congestion forms, not after they are inside it.",
+        "Measurable efficiency: fewer vehicles idling in avoidable congestion means less lost travel time, fuel burn and emissions - the standard, quantifiable outcomes in travel-time and emissions models.",
+        "Reproducible and inspectable: a model replaces arbitrary colour-band thresholds; features, split, provenance and metrics are recorded beside every forecast instead of hidden behind a rule.",
+        "Vendor-independent and retraining-ready: one provider interface means the storage, prediction and dashboard layers never change when a vendor does, and the pipeline is ready for a real dataset.",
+        "Operationally safe: a production configuration guard, one error envelope, classified upstream failures and an opt-in scheduler.",
+        "Cheap to pilot: free-tier sources (TomTom's documented allowance, keyless Open-Meteo) and open-source tooling keep a small institutional or municipal pilot low-cost.",
+        "Verifiable: 451 automated tests, compile checks, and documented live-endpoint verification where credentials permitted.",
     ]))
-
-    # --- Limitations ----------------------------------------------------------------------------
-    H1("Limitations")
+    H2("Potential drawbacks")
     story.extend(bullets([
-        "The model was trained on a simulated/development fixture; forecasts are demonstrative until the model is retrained and validated against real-world ground truth.",
-        "vehicle_count is NULL on live readings because no self-serve traffic API publishes throughput.",
-        "No historical traffic feed exists; a fresh location needs six prior readings before the first forecast.",
-        "Live PostgreSQL round-trip was not executed in the development environment (no server); the migration chain was verified on SQLite and offline PostgreSQL DDL.",
-        "Live TomTom verification requires a TRAFFIC_API_KEY, which was unavailable; the path is covered by mocked contract tests.",
-        "The API is unauthenticated by design; gateway authentication and rate limiting are required before public exposure.",
+        "Data gaps limit trust: live feeds publish current conditions only and are quota-limited, and there is no historical or throughput feed - a fresh location needs six prior readings before the first forecast, and vehicle throughput stays unknown.",
+        "Unvalidated model risk: the model is trained on simulated data, so forecasts are demonstrative until retrained and validated against real ground truth; every artifact labels dataset_is_simulated.",
+        "Privacy and liability: deriving and storing travel behaviour raises privacy concerns, and a publicly served wrong forecast (for example near an emergency) could carry safety or legal consequences.",
+        "External dependency: the service depends on vendor uptime, quota and the weather API; operator error on the provider/key pair could surface labelled simulation as real without the production guard.",
+        "Equity: rerouting nudges and infrastructure spend can concentrate on busy corridors; without checks the benefits of prediction need not reach every neighbourhood equally.",
+        "False confidence: a polished dashboard reads as authoritative, so honest provenance and validation status are embedded in the product rather than added later.",
+        "The API is unauthenticated by design and the live PostgreSQL round-trip was not executed here; gateway authentication, rate limiting and a hosted PostgreSQL are required before a fully public, production-grade launch.",
     ]))
 
     # --- Future Enhancements ---------------------------------------------------------------------
     H1("Future Enhancements")
     story.extend(bullets([
         "Retrain and revalidate on a real urban traffic dataset once sufficient history is collected (the pipeline is ready and tested).",
-        "Container image for the API and a CI pipeline running the test suite.",
+        "Delivered in this session: a container image (backend/Dockerfile), docker-compose (PostgreSQL + API), a CI workflow running the suite and image build, and a single-URL public deployment (render.yaml).",
         "Gateway authentication and rate limiting for public exposure.",
         "A historical or throughput data source should one become self-serve.",
         "A staging environment, plus a live PostgreSQL round-trip in CI.",
@@ -735,6 +741,18 @@ def body(story, styles):
         "static-frontend serving and a troubleshooting table. Full detail: "
         "docs/deployment.md."
     )
+    bodyp(
+        "Deployment was exercised rather than only documented. The same "
+        "repository ships a Docker image (backend/Dockerfile) that serves both "
+        "the API and the static dashboard from one origin (FRONTEND_DIR), a "
+        "docker-compose topology (PostgreSQL 14 + API) for one-command local "
+        "runs, and a GitHub Actions CI (full pytest suite + image build) that is "
+        "green on the default branch. A render.yaml Blueprint provisions a free "
+        "Render Web Service that migrates the schema at boot and starts Uvicorn "
+        "on Render's injected PORT with COLLECTION_ENABLED=true and "
+        "TRAFFIC_PROVIDER=real, so the hosted dashboard accumulates live TomTom "
+        "readings and scores them automatically."
+    )
 
     # --- Conclusion -------------------------------------------------------------------------------
     H1("Conclusion")
@@ -743,7 +761,7 @@ def body(story, styles):
         "prediction system: a leakage-safe data pipeline, an evaluated Random Forest "
         "classifier, real-time ingestion behind a provider interface, an automatic "
         "prediction engine, a dashboard API and interactive frontend, and a hardened "
-        "production configuration. It is verified by 450 automated tests and "
+        "production configuration. It is verified by 451 automated tests and "
         "documented end to end."
     )
     bodyp(
@@ -762,7 +780,7 @@ def body(story, styles):
                       "Copy-Item .env.example .env   # then set DATABASE_URL, provider\n"
                       "alembic upgrade head          # apply schema; --sql to review offline\n"
                       ".\\.venv\\Scripts\\python.exe -m uvicorn app.main:app --app-dir backend\n"
-                      "pytest -q                     # 450 passed\n"
+                      "pytest -q                     # 451 passed\n"
                       "python -m compileall -q backend ml migrations tests\n"
                       "node --check frontend/js/<file>        (repeat for every file)\n"
                       "python -m http.server 5500 --directory frontend   # serve the dashboard", S["Code"]))

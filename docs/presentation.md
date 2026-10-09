@@ -123,7 +123,24 @@ _Demo script: [`presentation-notes.md`](presentation-notes.md) §5._
 
 ---
 
-## Slide 11 — Results and honest scope
+## Slide 11 — Potential benefits and drawbacks
+
+**Benefits:** forward-looking awareness (reroute before congestion, not inside
+it); measurable efficiency (less idling → less time, fuel, emissions); a
+reproducible, inspectable model instead of arbitrary thresholds; one provider
+interface (retraining-ready on real data); low-cost to pilot on free-tier
+sources.
+
+**Drawbacks:** data gaps (current-conditions-only feeds, quota limits, no
+historical/throughput feed, fresh locations need six readings first); the model
+is simulated-data-trained, so forecasts are demonstrative until validated;
+privacy and liability around derived travel behaviour and wrong public
+forecasts; dependence on vendor uptime and quota; equity (benefits can
+concentrate on busy corridors); polished dashboards risk false confidence.
+
+---
+
+## Slide 12 — Results and honest scope
 
 On the simulated fixture: **macro F1 0.737, accuracy 0.856** vs a 0.214/0.750
 majority-class baseline. These numbers demonstrate that the pipeline runs — they
@@ -135,10 +152,11 @@ unauthenticated until a gateway is added.
 
 ---
 
-## Slide 12 — Next steps and Q&A
+## Slide 13 — Next steps and Q&A
 
 1. Retrain on a **real** dataset and re-validate (pipeline is ready).
-2. Docker image + CI running the suite; staging environment.
+2. Containerised now (Docker + CI) and deployed as a single-URL public demo;
+   a staging environment with live PostgreSQL round-trip is next.
 3. Gateway authentication and rate limiting for public exposure.
 4. Live TomTom and PostgreSQL round-trip once credentials and a server exist.
 

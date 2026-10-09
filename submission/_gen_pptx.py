@@ -1,4 +1,4 @@
-"""Generate the 12-slide project presentation (16:9) with python-pptx."""
+"""Generate the 13-slide project presentation (16:9) with python-pptx."""
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
@@ -163,7 +163,7 @@ tf = tbox(s, 0.9, 5.55, SW - 1.8, 0.4)
 para(tf, "Collect  \u2192  Predict  \u2192  Visualise", size=14, color=SKY,
      align=PP_ALIGN.CENTER, first=True)
 step = 1.0
-for i, t in enumerate(["Stages 1\u20138 complete", "450 automated tests passing",
+for i, t in enumerate(["Stages 1\u20138 complete", "451 automated tests passing",
                        "Report + deck included"]):
     rect(s, 0.9 + i * (step + 2.9), 6.25, 3.0, 0.62, STEEL, round_=True, radius=0.25)
     tf = tbox(s, 0.9 + i * (step + 2.9), 6.25, 3.0, 0.62, anchor=MSO_ANCHOR.MIDDLE)
@@ -393,7 +393,7 @@ s = slide()
 header(s, "Slide 10", "Testing & Results", 10)
 rect(s, 0.9, 1.9, 6.4, 4.3, PALE, line=STEEL, round_=True, radius=0.05)
 tf = tbox(s, 1.15, 2.05, 5.9, 3.0)
-para(tf, "Verification \u2013 450 automated tests", size=16, color=NAVY, bold=True, first=True)
+para(tf, "Verification \u2013 451 automated tests", size=16, color=NAVY, bold=True, first=True)
 bullets(tf, [
     (0, "observe \u2192 predict \u2192 persist against the real artifact"),
     (0, "every dashboard endpoint, freshness boundaries, fixed query counts"),
@@ -411,61 +411,88 @@ para(tf, "vs majority-class baseline", size=13, color=GREY, space_before=10)
 para(tf, "macro F1 0.214 \u00b7 accuracy 0.750", size=18, color=GREY, bold=True)
 para(tf, "These numbers show the pipeline runs \u2013 they are not a statement about "
          "real traffic.", size=12, color=AMBER, italic=True, space_before=14)
-notes(s, "450 tests, no external services. Results are demo-only: macro F1 0.737, "
+notes(s, "451 tests, no external services. Results are demo-only: macro F1 0.737, "
          "accuracy 0.856 vs baseline 0.214/0.750. Not real-traffic claims.")
 
 # ---------------------------------------------------------------------------
-# Slide 11 - Benefits / Limitations / Future
+# Slide 11 - Potential Benefits & Drawbacks
 # ---------------------------------------------------------------------------
 s = slide()
-header(s, "Slide 11", "Benefits \u00b7 Limitations \u00b7 Future", 11)
-breakdown_box(s, 0.9, 1.9, 3.85, 4.4, "Benefits", [
-    "honest, fully labelled pipeline",
-    "leakage-safe evaluation with baseline",
-    "retraining-ready for a real dataset",
-    "provenance removes feature skew",
-    "production guard + XSS hardening",
-    "no external services needed to test",
+header(s, "Slide 11", "Potential Benefits & Drawbacks", 11)
+breakdown_box(s, 0.9, 1.9, 5.75, 4.35, "Benefits", [
+    "forward-looking \u2013 reroute before congestion, not inside it",
+    "less idling \u2192 saved travel time, fuel and emissions",
+    "reproducible, inspectable model, not arbitrary threshold rules",
+    "one provider interface \u2013 retraining-ready on real data",
+    "cheap to pilot on free-tier sources (TomTom, keyless Open-Meteo)",
 ])
-breakdown_box(s, 4.95, 1.9, 3.85, 4.4, "Limitations", [
+breakdown_box(s, 6.85, 1.9, 5.6, 4.35, "Drawbacks", [
+    "data gaps: current-conditions-only, quota-limited, no throughput",
+    "six prior readings per location before any forecast is possible",
+    "simulated-data model \u2013 demonstrative until revalidated",
+    "privacy and liability around derived travel behaviour",
+    "vendor dependence \u00b7 equity \u00b7 false-confidence risk",
+])
+box = rect(s, 0.9, 6.45, SW - 1.8, 0.55, LIGHT, round_=True)
+tf = box.text_frame; tf.word_wrap = True; tf.vertical_anchor = MSO_ANCHOR.MIDDLE
+tf.margin_left = Inches(0.2); tf.margin_right = Inches(0.2)
+para(tf, "The honest drawbacks are designed in \u2013 labelling, provenance, production guard; "
+         "the rest are named in the report.", size=13, color=NAVY, bold=True,
+     align=PP_ALIGN.CENTER, first=True)
+notes(s, "Discuss benefits then drawbacks. The honest ones are engineered in (labelling, "
+         "provenance, production guard); the rest are stated in the report.")
+
+# ---------------------------------------------------------------------------
+# Slide 12 - Limitations / Future / Deployed
+# ---------------------------------------------------------------------------
+s = slide()
+header(s, "Slide 12", "Limitations \u00b7 Future \u00b7 Deployed", 12)
+breakdown_box(s, 0.9, 1.9, 3.85, 4.4, "Limitations", [
     "training data is a simulated fixture",
     "vehicle_count NULL on live readings",
     "no historical feed yet \u2013 scheduler accumulates it",
     "API unauthenticated until a gateway is added",
 ])
-breakdown_box(s, 9.0, 1.9, 3.45, 4.4, "Future", [
+breakdown_box(s, 4.95, 1.9, 3.85, 4.4, "Future", [
     "retrain + revalidate on real ground truth",
-    "Docker image + CI running the suite",
     "gateway auth and rate limiting",
-    "live TomTom + PostgreSQL round-trip",
+    "live TomTom + PostgreSQL round-trip in CI",
+    "staging environment",
 ])
-notes(s, "Honest scope: benefits of the engineering, limitations stated clearly, "
-         "next steps. Nothing fabricated.")
+breakdown_box(s, 9.0, 1.9, 3.45, 4.4, "Deployed now", [
+    "Docker image + docker-compose",
+    "CI: 451 tests + image build, green",
+    "single-URL public demo (Render)",
+    "live TomTom collection enabled",
+])
+notes(s, "Honest scope, then what is already shipped and running: Docker, CI, and the "
+         "public single-URL demo.")
 
 # ---------------------------------------------------------------------------
-# Slide 12 - Conclusion
+# Slide 13 - Conclusion
 # ---------------------------------------------------------------------------
 s = slide()
 rect(s, 0, 0, SW, SH, NAVY)
 tf = tbox(s, 0.9, 1.3, SW - 1.8, 0.5)
-para(tf, "SLIDE 12 \u00b7 CONCLUSION", size=13, color=SKY, bold=True, align=PP_ALIGN.CENTER, first=True)
+para(tf, "SLIDE 13 \u00b7 CONCLUSION", size=13, color=SKY, bold=True, align=PP_ALIGN.CENTER, first=True)
 tf = tbox(s, 0.9, 1.8, SW - 1.8, 0.9)
 para(tf, "A working, honest end-to-end pipeline", size=34, color=WHITE, bold=True,
      align=PP_ALIGN.CENTER, first=True)
 tf = tbox(s, 1.6, 2.9, SW - 3.2, 2.6)
 bullets(tf, [
-    (0, "Collect \u2192 predict \u2192 visualise, verified by 450 automated tests."),
+    (0, "Collect \u2192 predict \u2192 visualise, verified by 451 automated tests."),
     (0, "Leakage-safe machine learning with provenance on every artifact."),
     (0, "Demonstrated \u2013 not field-validated: forecasts improve once real ground "
         "truth flows through the same tested pipeline."),
-    (0, "Ready for retraining, containerisation and public deployment hardening."),
+    (0, "Containerised, CI-green and deployed at a public single URL \u2013 ready for "
+        "retraining on real data and gateway hardening."),
 ], size=17, color=WHITE)
 tf = tbox(s, 0.9, 5.85, SW - 1.8, 1.0)
 para(tf, "Questions.", size=30, color=SKY, bold=True, align=PP_ALIGN.CENTER, first=True)
 tf = tbox(s, 0.9, 6.7, SW - 1.8, 0.4)
 para(tf, "Project report, deployment guide and full API docs shipped alongside the deck.",
      size=12, color=WHITE, align=PP_ALIGN.CENTER, first=True)
-notes(s, "Closing. Honest scope + next steps. Questions.")
+notes(s, "Closing. Honest scope + live deployment + next steps. Questions.")
 
 prs.save(OUT)
 print("WROTE", OUT)

@@ -110,6 +110,26 @@ See `docs/roadmap.md`.
 
 ## 8. Anticipated questions
 
+**What are the benefits of such a system?**
+Forward-looking per-road forecasts let drivers reroute before congestion forms
+(not after they are inside it) and give planners a leading signal for timing and
+incident staging. The measurable outcomes are travel time, fuel and emissions
+saved. The engineering benefits follow directly: the model is reproducible and
+inspectable (features, split and metrics are recorded), the provider interface
+makes it vendor-independent and retraining-ready, and the free-tier stack makes
+a pilot cheap.
+
+**What are the drawbacks?**
+Live feeds publish current conditions only and are quota-limited, so a new city
+must accumulate history before any forecast is possible and vehicle throughput
+stays unknown. The current model is trained on simulated data, so its forecasts
+are demonstrative, not field-validated — acting on them as real would mislead.
+There are also privacy and liability concerns around derived travel behaviour, a
+dependence on vendor uptime/quota, an equity risk that benefits concentrate on
+busy corridors, and a general risk that a polished dashboard reads as
+authoritative. The project addresses the honest ones (labelling, provenance,
+production guard) and names the rest.
+
 **Why no real accuracy claims?**
 The model is trained on simulated data. Presenting synthetic metrics as
 field-validated performance would be unverifiable, so every artifact, report and

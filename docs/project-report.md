@@ -17,7 +17,7 @@ stated explicitly rather than assumed. Current as of the Stage 8 acceptance run.
 | Database | PostgreSQL 14+ via SQLAlchemy 2.x, Alembic migrations |
 | Model | Random Forest classifier, version `4.0.0`, 26 features, 4 congestion levels |
 | Status | Stages 1–8 **complete** (see §8) |
-| Verification | 450 automated tests passing; live Open-Meteo call verified; see §18–§19 |
+| Verification | 451 automated tests passing; live Open-Meteo call verified; see §18–§19 |
 
 ## 2. Executive summary
 
@@ -229,7 +229,7 @@ simulator with an empty DB; `production` must meet the §2 guard.
 
 ## 18. Testing strategy and results
 
-**450 tests**, run without any external service (isolated in-memory SQLite,
+**451 tests**, run without any external service (isolated in-memory SQLite,
 `MockTransport` providers, offline PostgreSQL dialect rendering):
 
 - API contract, error envelope, config validation, DB wiring and pool options.
@@ -253,7 +253,7 @@ on every `frontend/js/*.js`.
 | --- | --- | --- |
 | Migration round-trip | Real `alembic upgrade head → downgrade base → upgrade head` on a fresh SQLite file | Head `c3d4e5f6a7b8`, 2 tables + 12 indexes + unique constraint, re-applied cleanly |
 | PostgreSQL DDL | Offline `--sql` rendering + migration tests | Verified dialect-correct SQL |
-| Live PostgreSQL round-trip | **Not possible** (no server in this environment) | Documented in §21; procedure is plain `alembic upgrade head` |
+| Live PostgreSQL round-trip | **Not possible** (no server in this environment) | Documented in §22; procedure is plain `alembic upgrade head` |
 | Live TomTom | **Not possible** (no `TRAFFIC_API_KEY`) | Contract tests via `MockTransport`; live run requires a key |
 | Live Open-Meteo | One-off `httpx` call to the forecast endpoint | HTTP 200; `temperature_2m`, `precipitation`, `weather_code` present, matching the client's contract |
 | Production guard | Settings construction for `production` with each missing piece | Boot-time `ValidationError` naming the missing setting; no secret echoed |
@@ -267,9 +267,70 @@ production-shaped `.env`, the boot-time guard, applying the schema, the exact
 startup command (project root + `--app-dir backend`), liveness vs readiness,
 reverse-proxy/nginx and static-frontend serving, verification commands,
 operations notes (quotas, scheduler, backfill, logging) and a troubleshooting
-table. Container images and CI are follow-up items in §22.
+table. Beyond the guide, this session shipped the deployment itself:
 
-## 21. Known limitations and honest scope
+- **Container image** — `backend/Dockerfile` serves the API and the dashboard
+  from one image; `docker-compose.yml` runs PostgreSQL + the API locally in one
+  command (`docker compose up --build`), mirroring the hosted topology.
+- **CI** — `.github/workflows/ci.yml` runs the full `pytest` suite and a Docker
+  build on every push and pull request (currently green).
+- **Single-URL serving** — when `FRONTEND_DIR` is set, the API mounts the static
+  dashboard under its own origin, so the browser needs no CORS and no second
+  service. `frontend/js/config.js` defaults `API_BASE_URL` to same-origin (`''`).
+- **Public host** — `render.yaml` (Blueprint) provisions a free Render Web
+  Service that migrates the schema at boot and starts Uvicorn on Render's
+  `$PORT`, with `COLLECTION_ENABLED=true` and `TRAFFIC_PROVIDER=real` so the
+  live demo accumulates real TomTom readings and scores them automatically.
+
+## 21. Potential benefits and drawbacks
+
+The problem statement asks for a discussion of what a system like this offers
+and what it costs. Benefits are stated first, then the drawbacks that a
+responsible deployment must design against.
+
+**Potential benefits**
+
+1. **Forward-looking awareness.** Per-road forecasts (rather than "where is it
+   congested now?") let drivers reroute before congestion forms and give
+   planners a leading signal for signal timing and incident staging. This is the
+   behavioural change the problem statement targets.
+2. **Measurable efficiency.** Fewer vehicles idling in avoidable congestion
+   means lost travel time, fuel burn and emissions; these are the standard,
+   quantifiable outcomes in travel-time and emissions models.
+3. **Reproducible and inspectable.** A model replaces arbitrary colour-band
+   thresholds: features, split, provenance and metrics are recorded next to each
+   forecast instead of being hidden behind a rule.
+4. **Vendor-independent and retraining-ready.** One provider interface means the
+   storage, prediction and dashboard layers never change when the vendor does,
+   and the pipeline is ready to be retrained on real observations.
+5. **Cheap to pilot.** The stack runs on free-tier sources (TomTom's documented
+   allowance, keyless Open-Meteo) and open-source tooling, so a small municipal
+   or institutional pilot is low-cost.
+
+**Potential drawbacks**
+
+1. **Data gaps limit trust.** Live feeds publish current conditions only and are
+   quota-limited; there is no historical or throughput feed. A new city must
+   first accumulate enough per-segment history before the first forecast is even
+   possible, and vehicle throughput stays unknown.
+2. **Unvalidated model risk.** The current model is trained on simulated data;
+   its forecasts are demonstrative, not field-validated. Acting on them as if
+   they were real — or presenting them as such — could mislead drivers and
+   planners, which is why every artifact labels `dataset_is_simulated`.
+3. **Privacy and liability.** Deriving and storing travel behaviour raises
+   privacy concerns, and a publicly served wrong forecast (for example near an
+   emergency) could have safety or legal consequences.
+4. **External dependency.** The service depends on vendor uptime, quota limits
+   and the weather API. Operator error on the `TRAFFIC_PROVIDER`/key pair could
+   surface labelled simulation as real without the production guard.
+5. **Equity.** Rerouting nudges and infrastructure spend can concentrate on busy
+   corridors; without checks, the benefits of prediction need not reach every
+   neighbourhood equally.
+6. **False confidence.** A polished dashboard reads as authoritative; honest
+   provenance display and validation status are therefore part of the product,
+   not an afterthought.
+
+## 22. Known limitations and honest scope
 
 1. **Model trained on simulated data** — forecasts are demonstrative, not
    field-validated; `dataset_is_simulated: true`.
@@ -284,7 +345,7 @@ table. Container images and CI are follow-up items in §22.
 None of these are hidden: each is stated in the API description, the model
 metadata, the dashboard and the docs.
 
-## 22. Risks and mitigations
+## 23. Risks and mitigations
 
 | Risk | Mitigation |
 | --- | --- |
@@ -295,19 +356,19 @@ metadata, the dashboard and the docs.
 | Credential leak | `.env` only, secret-scan tests, redacted error messages and logs |
 | Multi-worker scheduler duplication | One-worker guidance in deployment doc |
 
-## 23. Future work
+## 24. Future work
 
 - Retrain on a **real** dataset and re-validate (the pipeline is ready and tested).
-- Docker image for the API + CI pipeline running `pytest` (documented, not yet built).
+- Container image + CI pipeline: **delivered** (see §20).
 - Gateway authentication and rate limiting for public exposure.
 - Historical/throughput data source if a suitable API becomes self-serve.
 - Staging environment and live PostgreSQL round-trip in CI.
 
-## 24. Appendix
+## 25. Appendix
 
 - **Run the API (verified):** `.\.venv\Scripts\python.exe -m uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 8000`
 - **Migrate:** `alembic upgrade head` (or `--sql` to review DDL offline).
-- **Tests:** `pytest -q` (450). **Frontend:** open `frontend/index.html` or serve `frontend/` on any static server.
+- **Tests:** `pytest -q` (451). **Frontend:** open `frontend/index.html`, serve `frontend/` on any static server, or let the API serve its own origin (`FRONTEND_DIR`).
 - **Docs:** [`architecture.md`](architecture.md) · [`api.md`](api.md) · [`ml-pipeline.md`](ml-pipeline.md) · [`roadmap.md`](roadmap.md) · [`deployment.md`](deployment.md) · [`presentation.md`](presentation.md) · [`presentation-notes.md`](presentation-notes.md).
 - **Artifacts:** `ml/models/model_metadata.json`, `feature_importance.json`, `evaluation_results.json`, `model_report.md`.
 - **Commands used for this report's verification** are recorded inline in §18–§19 and in the Stage 8 acceptance run.
