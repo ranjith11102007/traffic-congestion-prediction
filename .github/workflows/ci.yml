@@ -19,6 +19,14 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Generate simulated data fixture
+        # ml/data/raw, sample and processed are gitignored, but the Stage 3
+        # training tests run on the generated fixture. Produce it exactly as the
+        # development setup does: generate -> preprocess -> traffic_processed.csv.
+        run: |
+          python -m ml.data.sample.generate_simulated_dataset
+          python -m ml.preprocessing --write-summary
+
       - name: Run test suite
         run: pytest -q
 
