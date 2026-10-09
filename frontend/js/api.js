@@ -90,7 +90,7 @@
   }
 
   async function request(path, params) {
-    if (!config.API_BASE_URL) {
+    if (config.API_BASE_URL === undefined || config.API_BASE_URL === null) {
       throw new ApiError(
         'configuration',
         'API_BASE_URL is not set in js/config.js.',

@@ -10,7 +10,21 @@
  * the browser. The frontend talks to the API only.
  */
 window.TRAFFIC_CONFIG = {
-  API_BASE_URL: 'http://127.0.0.1:8000',
+  /**
+   * Where the API lives, without a trailing slash.
+   *
+   * An empty string means "the same origin the dashboard was loaded from",
+   * which is correct for every single-URL deployment where the API serves the
+   * dashboard itself: the Docker image, Render, or a local ``uvicorn`` run
+   * (open http://127.0.0.1:8000/ or /dashboard.html).
+   *
+   * Set an absolute URL only when the dashboard and the API are served from
+   * different origins, e.g. a static live-server preview on :5500 against the
+   * API on :8000:
+   *
+   *   API_BASE_URL: 'http://127.0.0.1:8000'
+   */
+  API_BASE_URL: '',
   HEALTH_PATH: '/api/health',
 
   /** Per-request timeout. A hung backend must not hang the UI. */

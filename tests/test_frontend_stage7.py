@@ -179,13 +179,24 @@ class TestNoSecretsAndNoFabrication:
         ):
             assert binding in path.read_text(encoding="utf-8"), f"{path} does not expose {binding}"
 
+    def test_api_client_treats_empty_base_url_as_same_origin(self) -> None:
+        api_js = (JS / "api.js").read_text(encoding="utf-8")
+        assert "config.API_BASE_URL === undefined" in api_js
+        assert "config.API_BASE_URL === null" in api_js
+        assert "config.API_BASE_URL || ''" in api_js
+
 
 class TestConfigAndRefresh:
     def test_refresh_defaults(self) -> None:
         config = (JS / "config.js").read_text(encoding="utf-8")
         assert re.search(r"REFRESH_INTERVAL_MS\s*:\s*30000", config)
         assert re.search(r"REQUEST_TIMEOUT_MS\s*:\s*8000", config)
-        assert re.search(r"API_BASE_URL\s*:\s*['\"]http://127\.0\.0\.1:8000", config)
+        # Empty means same-origin: the API serves the dashboard in single-URL
+        # deployments. An absolute URL is legal for two-origin local previews
+        # (see the inline documentation in config.js).
+        match = re.search(r"API_BASE_URL\s*:\s*['\"]([^'\"]*)['\"]", config)
+        assert match, "config.js must declare API_BASE_URL"
+        assert match.group(1) != " ", "API_BASE_URL must be an explicit string"
 
     def test_dashboard_declares_auto_refresh_controls(self, dashboard_html: str) -> None:
         assert 'id="refresh-interval"' in dashboard_html

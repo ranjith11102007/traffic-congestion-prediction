@@ -222,24 +222,26 @@ Interactive documentation: <http://127.0.0.1:8000/docs>
 
 ## Opening the frontend
 
-The frontend is static — no server or build step required.
+The frontend is static — no server or build step required. The simplest path in
+development is to let the API serve it (single origin, no CORS):
 
-```powershell
-start frontend\index.html
-```
+<http://127.0.0.1:8000/> (landing page) or <http://127.0.0.1:8000/dashboard.html>.
 
-or, recommended so the browser treats it as an HTTP origin:
+For a pure-frontend preview on the `http` origin without the API serving files:
 
 ```powershell
 .\.venv\Scripts\python.exe -m http.server 5500 --directory frontend
 ```
 
-Then open <http://127.0.0.1:5500/index.html>.
+Then open <http://127.0.0.1:5500/index.html>. Because the preview runs on a
+different origin than the API, set an absolute backend location in
+`frontend/js/config.js` (see the inline comments there):
+`API_BASE_URL: 'http://127.0.0.1:8000'`. The dashboard served by the API itself
+uses the default empty `API_BASE_URL`, which means "the same origin".
 
 If the API is running, the landing page shows a live `GET /api/health` result.
 Stop the API and press **Re-check** to see the frontend report the failure
-accurately. Change the backend location in `frontend/js/config.js` if it is not on
-`http://127.0.0.1:8000`.
+accurately.
 
 ### Dashboard (`frontend/dashboard.html`, Stage 7)
 
@@ -275,9 +277,10 @@ Behaviour:
   notice and every other panel keeps working.
 
 Configuration lives in `frontend/js/config.js`
-(`window.TRAFFIC_CONFIG`): `API_BASE_URL` (default `http://127.0.0.1:8000`),
-`REFRESH_INTERVAL_MS`, `TREND_HOUR_OPTIONS`, `PREDICTION_HISTORY_LIMIT`, the map
-tile URL, request timeout, and no credentials of any kind.
+(`window.TRAFFIC_CONFIG`): `API_BASE_URL` (default `''` — same origin, i.e. the
+API serves the dashboard), `REFRESH_INTERVAL_MS`, `TREND_HOUR_OPTIONS`,
+`PREDICTION_HISTORY_LIMIT`, the map tile URL, request timeout, and no
+credentials of any kind.
 
 ## Data pipeline
 

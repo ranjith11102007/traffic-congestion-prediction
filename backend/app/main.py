@@ -16,6 +16,8 @@ from typing import AsyncIterator
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.api.router import api_router
 from app.core.config import get_settings
@@ -200,16 +202,33 @@ def create_application() -> FastAPI:
     register_exception_handlers(application)
     application.include_router(api_router)
 
-    @application.get("/", include_in_schema=False)
-    async def root() -> dict[str, str]:
-        """Minimal pointer to the docs and the health probe."""
+    frontend_dir = settings.frontend_dir
+    if frontend_dir is not None:
+        # Single-URL deployment (Docker, Render): serve the static dashboard
+        # from the API's own origin so the demo needs no CORS and no second
+        # service. Registered last, so /api/*, /docs, /redoc and /openapi.json
+        # are always matched before the catch-all mount, and the openapi-schema
+        # and the API description stay reachable from the hosted UI.
+        @application.get("/", include_in_schema=False)
+        async def dashboard_index() -> FileResponse:
+            return FileResponse(frontend_dir / "index.html")
 
-        return {
-            "service": settings.SERVICE_NAME,
-            "version": "0.1.0",
-            "docs": "/docs",
-            "health": "/api/health",
-        }
+        application.mount(
+            "/",
+            StaticFiles(directory=str(frontend_dir), html=True),
+            name="frontend",
+        )
+    else:
+        @application.get("/", include_in_schema=False)
+        async def root() -> dict[str, str]:
+            """Minimal pointer to the docs and the health probe."""
+
+            return {
+                "service": settings.SERVICE_NAME,
+                "version": "0.1.0",
+                "docs": "/docs",
+                "health": "/api/health",
+            }
 
     return application
 

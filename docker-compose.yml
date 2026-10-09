@@ -1,0 +1,40 @@
+# Local full-stack run with PostgreSQL, mirroring the Render deployment.
+#   docker compose up --build
+# Then open http://localhost:8000/dashboard.html (the API serves the dashboard).
+#
+# Environment is intentionally development: the simulation provider needs no
+# credentials and the production guard stays armed for real deployments.
+services:
+  db:
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_USER: traffic
+      POSTGRES_PASSWORD: traffic
+      POSTGRES_DB: traffic
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U traffic -d traffic"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      ENVIRONMENT: development
+      DATABASE_URL: postgresql+psycopg2://traffic:traffic@db:5432/traffic
+      FRONTEND_DIR: /app/frontend
+      COLLECTION_ENABLED: "false"
+      TRAFFIC_PROVIDER: simulation
+      DB_FAIL_FAST: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+
+volumes:
+  db_data:

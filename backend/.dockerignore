@@ -1,0 +1,21 @@
+# Keep the image lean and keep local noise and secrets out of builds.
+.git
+.venv
+**/__pycache__
+**/*.pyc
+**/*.pyo
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+.env
+.env.*
+!.env.example
+data/
+ml/data/raw/
+ml/data/processed/
+.mypy_cache
+.pytest_cache
+node_modules
+Thumbs.db
+desktop.ini

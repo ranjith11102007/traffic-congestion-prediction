@@ -267,6 +267,18 @@ class Settings(BaseSettings):
         ),
     )
 
+    # --- Static dashboard ----------------------------------------------------
+    FRONTEND_DIR: str = Field(
+        default="",
+        description=(
+            "Directory holding the static dashboard (index.html, js, css). When "
+            "set and present on disk the API serves the UI from its own origin, "
+            "which is how single-URL deployments (Docker, Render) publish the "
+            "dashboard without CORS or a second service. Empty keeps the API "
+            "JSON-only so tests and headless prefixes see no mount."
+        ),
+    )
+
     # --- ML inference --------------------------------------------------------
     ML_MODELS_DIR: str = Field(
         default="",
@@ -457,6 +469,26 @@ class Settings(BaseSettings):
         if self.ML_MODELS_DIR.strip():
             return self.ML_MODELS_DIR.strip()
         return str(PROJECT_ROOT / "ml" / "models")
+
+    @property
+    def frontend_dir(self) -> Path | None:
+        """Resolve the static dashboard directory, or None to stay JSON-only.
+
+        An absolute path is used as given; a relative one is resolved against the
+        project root rather than the working directory, because the working
+        directory differs between ``uvicorn backend.app.main:app`` and a test run.
+        A path that does not exist as a directory is treated as unset so a
+        deployment with a typo falls back to the JSON-only API instead of serving
+        a broken mount.
+        """
+
+        raw = self.FRONTEND_DIR.strip()
+        if not raw:
+            return None
+        path = Path(raw)
+        if not path.is_absolute():
+            path = PROJECT_ROOT / path
+        return path if path.is_dir() else None
 
     @property
     def traffic_locations_path(self) -> Path:
