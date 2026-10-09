@@ -1,0 +1,22 @@
+# Backend runtime dependencies for the FastAPI API.
+# Install: pip install -r backend/requirements.txt
+
+# --- Web framework ----------------------------------------------------------
+fastapi>=0.115.0,<1.0.0
+uvicorn[standard]>=0.30.0,<1.0.0
+
+# --- Configuration and validation -------------------------------------------
+pydantic>=2.7.0,<3.0.0
+pydantic-settings>=2.3.0,<3.0.0
+
+# --- Database ---------------------------------------------------------------
+SQLAlchemy>=2.0.30,<3.0.0
+psycopg2-binary>=2.9.9,<3.0.0
+alembic>=1.13.0,<2.0.0
+
+# --- External providers ------------------------------------------------------
+# Stage 5: HTTP client for the TomTom traffic API and the Open-Meteo weather API.
+# httpx rather than requests because it shares the async client, is already a
+# transitive dependency of the Starlette test client, and exposes MockTransport,
+# which is how the provider tests avoid touching a live API.
+httpx>=0.27.0,<1.0.0

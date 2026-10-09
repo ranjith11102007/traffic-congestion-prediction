@@ -1,0 +1,16 @@
+# Aggregate requirements for the whole project.
+#
+#   pip install -r requirements.txt
+#
+# Runtime is split into two independent groups so the API can be deployed
+# without the ML stack and vice versa. See docs/architecture.md.
+
+# --- API service ------------------------------------------------------------
+-r backend/requirements.txt
+
+# --- ML pipeline ------------------------------------------------------------
+-r ml/requirements.txt
+
+# --- Testing ----------------------------------------------------------------
+pytest>=8.0.0,<9.0.0
+httpx>=0.27.0,<1.0.0

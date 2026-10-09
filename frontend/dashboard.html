@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Traffic Dashboard | AI-Based Urban Traffic Congestion Prediction System</title>
+  <meta name="description"
+        content="Live traffic, AI congestion forecasts, weather and system health for the monitored road network." />
+  <link rel="stylesheet" href="vendor/leaflet.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+</head>
+<body class="dashboard-page">
+  <a class="skip-link" href="#main-content">Skip to content</a>
+
+  <header class="site-header dash-header">
+    <div class="header-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark" aria-hidden="true">TP</span>
+        <span class="brand-text">
+          <strong>Traffic Prediction</strong>
+          <small>Urban congestion intelligence</small>
+        </span>
+      </a>
+
+      <div class="dash-header__meta">
+        <p class="conn-pill" id="header-conn" data-state="checking" role="status" aria-live="polite">
+          <span class="conn-pill__dot" aria-hidden="true"></span>
+          <span id="header-conn-text">Connecting…</span>
+        </p>
+        <p class="dash-header__updated">
+          <span class="dash-header__updated-label">Last updated</span>
+          <time id="last-updated">—</time>
+        </p>
+        <label class="dash-header__interval" for="refresh-interval">
+          <span class="sr-only">Auto-refresh interval</span>
+          <select id="refresh-interval" aria-label="Auto-refresh interval">
+            <option value="15000">Refresh 15s</option>
+            <option value="30000" selected>Refresh 30s</option>
+            <option value="60000">Refresh 1m</option>
+            <option value="0">Auto-refresh off</option>
+          </select>
+        </label>
+        <button type="button" class="button button--primary dash-header__refresh" id="refresh-btn">
+          Refresh
+        </button>
+      </div>
+
+      <button class="nav-toggle" id="sidebar-toggle" aria-expanded="false" aria-controls="dash-sidebar">
+        <span class="sr-only">Toggle dashboard navigation</span>
+        <span class="nav-toggle-bar" aria-hidden="true"></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="dash-alert" id="connection-banner" hidden role="alert">
+    <div class="dash-alert__body">
+      <strong>Backend unreachable.</strong>
+      <span id="connection-banner-detail">
+        The dashboard cannot reach the API. It will keep retrying on the refresh schedule.
+      </span>
+    </div>
+    <button type="button" class="button button--ghost" id="connection-retry">Retry now</button>
+  </div>
+
+  <div class="dash-layout">
+    <aside class="dash-sidebar" id="dash-sidebar" aria-label="Dashboard sections">
+      <nav class="dash-nav" aria-label="Dashboard sections">
+        <h2 class="dash-nav__title">Sections</h2>
+        <ul>
+          <li><a href="#overview" data-section="overview" aria-current="true">Overview</a></li>
+          <li><a href="#traffic" data-section="traffic">Live Traffic</a></li>
+          <li><a href="#predictions" data-section="predictions">Predictions</a></li>
+          <li><a href="#analytics" data-section="analytics">Analytics</a></li>
+          <li><a href="#locations" data-section="locations">Locations</a></li>
+          <li><a href="#status" data-section="status">System Status</a></li>
+        </ul>
+      </nav>
+
+      <div class="dash-selector">
+        <label for="location-select">Selected location</label>
+        <select id="location-select">
+          <option value="">Loading locations…</option>
+        </select>
+        <p class="dash-selector__hint" id="location-select-hint">
+          Drives the map focus, detail panel, forecast and trend chart.
+        </p>
+      </div>
+
+      <div class="dash-sidebar__foot">
+        <p>
+          Forecasts are produced by the stored model. Training data is simulated, so
+          predictions are demonstrative until a real dataset retrain validates them.
+        </p>
+        <a href="#analytics">Model information</a>
+      </div>
+    </aside>
+
+    <main class="dash-main" id="main-content">
+
+      <!-- ================================================== Overview -->
+      <section class="dash-section" id="overview" aria-labelledby="overview-heading" tabindex="-1">
+        <header class="dash-section__head">
+          <h1 id="overview-heading">Overview</h1>
+          <p class="dash-section__sub">
+            One poll covers every monitored road: newest reading, newest forecast and
+            how fresh the data is.
+          </p>
+        </header>
+
+        <div class="kpi-grid" id="kpi-grid">
+          <article class="kpi-card" data-kpi="locations">
+            <h2>Monitored locations</h2>
+            <p class="kpi-card__value" id="kpi-locations">N/A</p>
+            <p class="kpi-card__sub" id="kpi-locations-sub">Loading…</p>
+          </article>
+
+          <article class="kpi-card" data-kpi="predictions">
+            <h2>Locations with a forecast</h2>
+            <p class="kpi-card__value" id="kpi-predictions">N/A</p>
+            <p class="kpi-card__sub" id="kpi-predictions-sub">Loading…</p>
+          </article>
+
+          <article class="kpi-card" data-kpi="speed">
+            <h2>Latest mean speed</h2>
+            <p class="kpi-card__value" id="kpi-speed">N/A</p>
+            <p class="kpi-card__sub" id="kpi-speed-sub">Loading…</p>
+          </article>
+
+          <article class="kpi-card" data-kpi="congestion">
+            <h2>Highest predicted level</h2>
+            <p class="kpi-card__value" id="kpi-congestion">N/A</p>
+            <p class="kpi-card__sub" id="kpi-congestion-sub">Loading…</p>
+          </article>
+
+          <article class="kpi-card" data-kpi="freshness">
+            <h2>Data freshness</h2>
+            <p class="kpi-card__value" id="kpi-freshness">N/A</p>
+            <p class="kpi-card__sub" id="kpi-freshness-sub">Loading…</p>
+          </article>
+
+          <article class="kpi-card" data-kpi="model">
+            <h2>Model version</h2>
+            <p class="kpi-card__value" id="kpi-model">N/A</p>
+            <p class="kpi-card__sub" id="kpi-model-sub">Loading…</p>
+          </article>
+        </div>
+
+        <div class="dash-grid dash-grid--2">
+          <article class="panel" aria-labelledby="map-heading">
+            <header class="panel__head">
+              <h2 id="map-heading">Traffic map</h2>
+              <p class="panel__note" id="map-legend">
+                Marker colour shows the stored forecast; grey means no reading yet.
+              </p>
+            </header>
+            <div class="map-wrap">
+              <div id="map" role="application"
+                   aria-label="Map of monitored road locations"></div>
+              <div class="panel-state" id="map-state">
+                <span>Loading locations…</span>
+              </div>
+            </div>
+            <ul class="map-key" aria-label="Marker colour key">
+              <li><span class="map-key__swatch" data-tone="low"></span> Free flow</li>
+              <li><span class="map-key__swatch" data-tone="moderate"></span> Moderate</li>
+              <li><span class="map-key__swatch" data-tone="high"></span> Heavy</li>
+              <li><span class="map-key__swatch" data-tone="severe"></span> Severe</li>
+              <li><span class="map-key__swatch" data-tone="unknown"></span> No forecast</li>
+            </ul>
+          </article>
+
+          <article class="panel" aria-labelledby="detail-heading">
+            <header class="panel__head">
+              <h2 id="detail-heading">Selected location</h2>
+              <p class="panel__note" id="detail-road">&mdash;</p>
+            </header>
+            <div id="location-detail">
+              <p class="panel-loading">Loading traffic data…</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- =============================================== Live traffic -->
+      <section class="dash-section" id="traffic" aria-labelledby="traffic-heading" tabindex="-1">
+        <header class="dash-section__head">
+          <h1 id="traffic-heading">Live traffic</h1>
+          <p class="dash-section__sub">
+            Newest stored observation per location, straight from
+            <code>GET /api/dashboard/current</code>. Speeds are shown as
+            <code>null</code> rather than zero when nothing has been collected.
+          </p>
+        </header>
+
+        <article class="panel">
+          <header class="panel__head">
+            <h2>Current readings</h2>
+            <p class="panel__note" id="current-count">&mdash;</p>
+          </header>
+          <div class="panel-body" id="current-table">
+            <p class="panel-loading">Loading traffic data…</p>
+          </div>
+        </article>
+      </section>
+
+      <!-- =============================================== Predictions -->
+      <section class="dash-section" id="predictions" aria-labelledby="predictions-heading" tabindex="-1">
+        <header class="dash-section__head">
+          <h1 id="predictions-heading">Predictions</h1>
+          <p class="dash-section__sub">
+            Stored forecasts from <code>GET /api/traffic/predictions</code>. A forecast
+            exists only after six prior readings on the same road segment.
+          </p>
+        </header>
+
+        <div class="dash-grid dash-grid--2">
+          <article class="panel" aria-labelledby="latest-pred-heading">
+            <header class="panel__head">
+              <h2 id="latest-pred-heading">Latest forecast</h2>
+              <p class="panel__note" id="latest-pred-scope">Selected location</p>
+            </header>
+            <div class="panel-body" id="latest-prediction">
+              <p class="panel-loading">Loading predictions…</p>
+            </div>
+          </article>
+
+          <article class="panel" aria-labelledby="history-heading">
+            <header class="panel__head">
+              <h2 id="history-heading">Forecast history</h2>
+              <p class="panel__note" id="history-count">&mdash;</p>
+            </header>
+            <div class="panel-body" id="prediction-history">
+              <p class="panel-loading">Loading predictions…</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ================================================ Analytics -->
+      <section class="dash-section" id="analytics" aria-labelledby="analytics-heading" tabindex="-1">
+        <header class="dash-section__head">
+          <h1 id="analytics-heading">Analytics</h1>
+          <p class="dash-section__sub">
+            Observed speed against the forecast stored for the same reading.
+          </p>
+        </header>
+
+        <article class="panel">
+          <header class="panel__head panel__head--controls">
+            <div>
+              <h2>Trend &mdash; <span id="trend-location">all locations</span></h2>
+              <p class="panel__note" id="trend-meta">&mdash;</p>
+            </div>
+            <div class="segmented" role="group" aria-label="Trend time range">
+              <button type="button" class="segmented__btn" data-hours="1">1h</button>
+              <button type="button" class="segmented__btn is-active" data-hours="6" aria-pressed="true">6h</button>
+              <button type="button" class="segmented__btn" data-hours="12">12h</button>
+              <button type="button" class="segmented__btn" data-hours="24">24h</button>
+            </div>
+          </header>
+          <div class="panel-body">
+            <div class="chart-host" id="trend-chart-host">
+              <canvas id="trend-canvas" aria-label="Speed and congestion trend chart"
+                      role="img"></canvas>
+              <div class="chart-notice" id="trend-notice" hidden role="status"></div>
+            </div>
+            <p class="panel-loading" id="trend-loading">Loading analytics…</p>
+          </div>
+        </article>
+
+        <article class="panel" aria-labelledby="model-heading">
+          <header class="panel__head">
+            <h2 id="model-heading">Model information</h2>
+            <p class="panel__note" id="model-version">&mdash;</p>
+          </header>
+          <div class="panel-body" id="model-info">
+            <p class="panel-loading">Loading analytics…</p>
+          </div>
+        </article>
+      </section>
+
+      <!-- ================================================ Locations -->
+      <section class="dash-section" id="locations" aria-labelledby="locations-heading" tabindex="-1">
+        <header class="dash-section__head">
+          <h1 id="locations-heading">Locations</h1>
+          <p class="dash-section__sub">
+            Readiness per monitored road, from <code>GET /api/dashboard/locations</code>.
+            "5 of 6" means one more reading unlocks the first forecast.
+          </p>
+        </header>
+
+        <div class="panel-body" id="locations-grid">
+          <p class="panel-loading">Loading locations…</p>
+        </div>
+      </section>
+
+      <!-- ============================================= System status -->
+      <section class="dash-section" id="status" aria-labelledby="status-heading" tabindex="-1">
+        <header class="dash-section__head">
+          <h1 id="status-heading">System status</h1>
+          <p class="dash-section__sub">
+            Readiness from <code>GET /api/dashboard/status</code>. No configuration,
+            credentials or connection strings are ever returned to the browser.
+          </p>
+        </header>
+
+        <article class="panel">
+          <div class="panel-body" id="system-status">
+            <p class="panel-loading">Loading system status…</p>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>
+        AI-Based Urban Traffic Congestion Prediction System &mdash; Stage 7 dashboard.
+        <span class="footer-muted">
+          Backend: FastAPI &middot; Data: PostgreSQL &middot; ML: scikit-learn
+          &middot; Map: Leaflet / OpenStreetMap &middot; Charts: Chart.js
+        </span>
+      </p>
+    </div>
+  </footer>
+
+  <script src="vendor/leaflet.js"></script>
+  <script src="vendor/chart.umd.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+{
+  "model_name": "random_forest",
+  "model_display_name": "Random Forest Classifier",
+  "model_version": "4.0.0",
+  "model_type": "RandomForestClassifier",
+  "trained_at": "2026-10-05T10:15:21.889413+00:00",
+  "dataset_name": "traffic_processed.csv",
+  "dataset_path": "C:\\Users\\RANJITH T\\Desktop\\TV\\ml\\data\\processed\\traffic_processed.csv",
+  "dataset_is_simulated": true,
+  "dataset_rows_total": 1980,
+  "training_records": 1584,
+  "test_records": 396,
+  "features": [
+    "free_flow_speed_kph",
+    "temperature_c",
+    "precipitation_mm",
+    "is_incident",
+    "hour",
+    "day_of_week",
+    "day_of_month",
+    "is_weekend",
+    "month",
+    "avg_speed_kph_lag_1",
+    "speed_ratio_lag_1",
+    "avg_speed_kph_lag_2",
+    "speed_ratio_lag_2",
+    "avg_speed_kph_lag_3",
+    "speed_ratio_lag_3",
+    "speed_ratio_rolling_mean_3",
+    "speed_ratio_rolling_mean_6",
+    "road_segment_id__SEG_01",
+    "road_segment_id__SEG_02",
+    "road_segment_id__SEG_03",
+    "road_segment_id__SEG_04",
+    "road_segment_id__SEG_05",
+    "road_segment_id__SEG_06",
+    "weather_condition__clear",
+    "weather_condition__cloudy",
+    "weather_condition__rain"
+  ],
+  "feature_count": 26,
+  "target_name": "congestion_level",
+  "target_classes": 4,
+  "label_mapping": {
+    "0": "free_flow",
+    "1": "moderate",
+    "2": "heavy",
+    "3": "severe"
+  },
+  "split_strategy": "chronological",
+  "split_ratio": 0.2,
+  "split_cutoff": "2026-01-16 05:00:00",
+  "split_cutoff_epoch": 1768539600.0,
+  "train_time_range": [
+    "2026-01-05 06:00:00",
+    "2026-01-16 05:00:00"
+  ],
+  "test_time_range": [
+    "2026-01-16 06:00:00",
+    "2026-01-18 23:00:00"
+  ],
+  "train_class_distribution": {
+    "0": 389,
+    "1": 716,
+    "2": 322,
+    "3": 157
+  },
+  "test_class_distribution": {
+    "0": 44,
+    "1": 297,
+    "2": 40,
+    "3": 15
+  },
+  "hyperparameters": {
+    "class_weight": "balanced",
+    "criterion": "gini",
+    "max_depth": null,
+    "max_features": "sqrt",
+    "min_samples_leaf": 2,
+    "n_estimators": 300,
+    "n_jobs": -1,
+    "random_state": 42
+  },
+  "required_input_columns": [
+    "avg_speed_kph",
+    "free_flow_speed_kph",
+    "precipitation_mm",
+    "road_segment_id",
+    "temperature_c",
+    "timestamp",
+    "weather_condition"
+  ],
+  "min_history_per_segment": 6,
+  "sklearn_version": "1.9.1",
+  "ml_package_version": "0.1.0",
+  "training_run_metrics": {
+    "accuracy": 0.863636,
+    "balanced_accuracy": 0.772012,
+    "precision_macro": 0.757091,
+    "recall_macro": 0.772012,
+    "f1_macro": 0.762453,
+    "precision_weighted": 0.861268,
+    "recall_weighted": 0.863636,
+    "f1_weighted": 0.861991,
+    "macro_f1_is_primary": true,
+    "per_class": {
+      "0": {
+        "label_name": "free_flow",
+        "precision": 0.6,
+        "recall": 0.545455,
+        "f1": 0.571429,
+        "support": 44
+      },
+      "1": {
+        "label_name": "moderate",
+        "precision": 0.916667,
+        "recall": 0.925926,
+        "f1": 0.921273,
+        "support": 297
+      },
+      "2": {
+        "label_name": "heavy",
+        "precision": 0.789474,
+        "recall": 0.75,
+        "f1": 0.769231,
+        "support": 40
+      },
+      "3": {
+        "label_name": "severe",
+        "precision": 0.722222,
+        "recall": 0.866667,
+        "f1": 0.787879,
+        "support": 15
+      }
+    },
+    "confusion_matrix": [
+      [
+        24,
+        20,
+        0,
+        0
+      ],
+      [
+        16,
+        275,
+        6,
+        0
+      ],
+      [
+        0,
+        5,
+        30,
+        5
+      ],
+      [
+        0,
+        0,
+        2,
+        13
+      ]
+    ],
+    "confusion_matrix_labels": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "classification_report": "              precision    recall  f1-score   support\n\n   free_flow     0.6000    0.5455    0.5714        44\n    moderate     0.9167    0.9259    0.9213       297\n       heavy     0.7895    0.7500    0.7692        40\n      severe     0.7222    0.8667    0.7879        15\n\n    accuracy                         0.8636       396\n   macro avg     0.7571    0.7720    0.7625       396\nweighted avg     0.8613    0.8636    0.8620       396\n",
+    "evaluated_rows": 396
+  },
+  "artifacts": {
+    "model": "traffic_model.pkl",
+    "preprocessor": "preprocessor.pkl",
+    "metadata": "model_metadata.json",
+    "feature_importance": "feature_importance.json"
+  }
+}

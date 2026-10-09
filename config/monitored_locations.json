@@ -1,0 +1,76 @@
+{
+  "_comment": [
+    "Roads this deployment monitors, and where to query a traffic provider for each.",
+    "",
+    "Why this file exists: no traffic vendor knows what a 'road_segment_id' is in",
+    "this project. They know coordinates. So the mapping from a provider query to",
+    "the Stage 3 ML feature 'road_segment_id' has to live in configuration, and it",
+    "has to be editable without touching code or retraining the model.",
+    "",
+    "Every segment below is one of the six categories the model was trained on",
+    "(SEG-01..SEG-06). A segment outside that set is rejected on load, because the",
+    "model would score it under a label it never learned.",
+    "",
+    "road_name is display metadata only. The vendor response has no road name, so",
+    "the name here is what gets stored. free_flow_speed_kph_max is a sanity bound,",
+    "not a claim about the road: a reading above it indicates the point fell on an",
+    "unintended segment and is discarded rather than stored as a wild value."
+  ],
+  "version": 1,
+  "locations": [
+    {
+      "location_id": "LOC-001",
+      "road_segment_id": "SEG-01",
+      "road_name": "Anna Salai",
+      "city": "Chennai",
+      "latitude": 13.0569,
+      "longitude": 80.2425,
+      "free_flow_speed_kph_max": 60.0
+    },
+    {
+      "location_id": "LOC-002",
+      "road_segment_id": "SEG-02",
+      "road_name": "Raj Bhavan Road, Bengaluru",
+      "city": "Bengaluru",
+      "latitude": 12.9758,
+      "longitude": 77.7497,
+      "free_flow_speed_kph_max": 60.0
+    },
+    {
+      "location_id": "LOC-003",
+      "road_segment_id": "SEG-03",
+      "road_name": "Koramangala Main Road, Bengaluru",
+      "city": "Bengaluru",
+      "latitude": 12.9352,
+      "longitude": 77.6245,
+      "free_flow_speed_kph_max": 50.0
+    },
+    {
+      "location_id": "LOC-004",
+      "road_segment_id": "SEG-04",
+      "road_name": "MG Road, Bengaluru",
+      "city": "Bengaluru",
+      "latitude": 12.9756,
+      "longitude": 77.6068,
+      "free_flow_speed_kph_max": 55.0
+    },
+    {
+      "location_id": "LOC-005",
+      "road_segment_id": "SEG-05",
+      "road_name": "NH-44 Elevated Bypass, Chennai",
+      "city": "Chennai",
+      "latitude": 13.0605,
+      "longitude": 80.2105,
+      "free_flow_speed_kph_max": 80.0
+    },
+    {
+      "location_id": "LOC-006",
+      "road_segment_id": "SEG-06",
+      "road_name": "Chennai Airport Expressway",
+      "city": "Chennai",
+      "latitude": 12.9908,
+      "longitude": 80.1633,
+      "free_flow_speed_kph_max": 80.0
+    }
+  ]
+}

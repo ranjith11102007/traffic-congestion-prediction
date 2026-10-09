@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI-Based Urban Traffic Congestion Prediction System</title>
+  <meta name="description"
+        content="AI-based urban traffic congestion prediction system: API, ML pipeline and live traffic dashboard." />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark" aria-hidden="true">TP</span>
+        <span class="brand-text">
+          <strong>Traffic Prediction</strong>
+          <small>AI-based congestion forecasting</small>
+        </span>
+      </a>
+
+      <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="primary-nav">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="nav-toggle-bar" aria-hidden="true"></span>
+      </button>
+
+      <nav class="primary-nav" id="primary-nav" aria-label="Primary">
+        <ul>
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="dashboard.html#overview">Traffic Map</a></li>
+          <li><a href="dashboard.html#predictions">Predictions</a></li>
+          <li><a href="dashboard.html#analytics">Analytics</a></li>
+          <li><a href="#about">About</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="hero">
+      <div class="container">
+        <p class="eyebrow">Stage 7 &middot; Frontend dashboard</p>
+        <h1>AI-Based Urban Traffic Congestion Prediction System</h1>
+        <p class="lead">
+          A modular system that ingests real urban traffic observations, trains machine-learning
+          models to classify congestion levels, and serves short-horizon congestion forecasts
+          through an API and an interactive map dashboard.
+        </p>
+
+        <div class="hero-actions">
+          <a class="button button--primary" href="dashboard.html">Open dashboard</a>
+          <a class="button button--ghost" href="#status">View implementation status</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="container section" aria-labelledby="problem-heading">
+      <h2 id="problem-heading">Problem statement</h2>
+      <p>
+        Urban road networks routinely experience congestion that commuters only discover
+        once they are already inside it. Reactive control reacts to congestion after it has
+        formed, and static timetables cannot account for day-to-day variation caused by
+        incidents, weather, construction and peak-hour shifts. The result is measurable
+        lost time, fuel waste and avoidable emissions.
+      </p>
+      <p>
+        This project builds a prediction layer that estimates congestion for a road segment
+        ahead of time, so that routing guidance and signal-timing decisions can be made
+        before congestion builds up.
+      </p>
+    </section>
+
+    <section class="container section" aria-labelledby="objective-heading">
+      <h2 id="objective-heading">Objective</h2>
+      <ul class="feature-grid">
+        <li class="feature-card">
+          <h3>Real data only</h3>
+          <p>
+            Every metric in this project comes from a real, cited dataset or a live data
+            source. No synthetic or fabricated traffic values are used to make results look
+            better than they are.
+          </p>
+        </li>
+        <li class="feature-card">
+          <h3>Modular ML layer</h3>
+          <p>
+            Preprocessing, training, evaluation and inference live in an independent package
+            that never imports the web layer, so alternative models can be benchmarked on the
+            same footing.
+          </p>
+        </li>
+        <li class="feature-card">
+          <h3>Testable in isolation</h3>
+          <p>
+            Each component has an automated test suite, so a change to the API, the database
+            layer or the ML pipeline can be verified on its own.
+          </p>
+        </li>
+      </ul>
+    </section>
+
+    <section class="container section" id="status" aria-labelledby="status-heading">
+      <h2 id="status-heading">Implementation status</h2>
+      <p class="section-note">
+        This page reflects the actual state of the repository. Items marked
+        <span class="badge badge--planned">Planned</span> are not implemented yet.
+      </p>
+
+      <div class="status-grid">
+        <div class="status-card">
+          <h3>API service</h3>
+          <ul class="checklist">
+            <li class="done">FastAPI application boots</li>
+            <li class="done">Environment-driven configuration</li>
+            <li class="done">Centralised error handling</li>
+            <li class="done">Observation, prediction and dashboard endpoints</li>
+            <li class="done">Alembic migrations for PostgreSQL</li>
+          </ul>
+        </div>
+
+        <div class="status-card">
+          <h3>ML pipeline</h3>
+          <ul class="checklist">
+            <li class="done">Module layout &amp; data contract</li>
+            <li class="done">Leakage-safe preprocessing</li>
+            <li class="done">Random Forest training &amp; evaluation</li>
+            <li class="done">Inference served by the API</li>
+            <li class="pending">Real traffic dataset</li>
+          </ul>
+        </div>
+
+        <div class="status-card">
+          <h3>Frontend</h3>
+          <ul class="checklist">
+            <li class="done">Landing page &amp; navigation</li>
+            <li class="done">Live API health indicator</li>
+            <li class="done">Dashboard: KPIs, map, charts, status</li>
+            <li class="done">Leaflet traffic map</li>
+            <li class="done">Chart.js analytics</li>
+            <li class="pending">Deployment &amp; CI</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="api-check" id="api-check">
+        <h3>Live API check</h3>
+        <p class="section-note">
+          Requests <code>GET <span id="api-health-url">/api/health</span></code> against the
+          running backend. Start the server to see a real response.
+        </p>
+        <p class="api-check-status" id="api-status" data-state="idle" role="status" aria-live="polite">
+          Checking API status&hellip;
+        </p>
+        <pre class="api-check-output" id="api-output" hidden></pre>
+        <button class="button button--ghost" id="api-retry" type="button">Re-check</button>
+      </div>
+    </section>
+
+    <section class="container section" id="about" aria-labelledby="about-heading">
+      <h2 id="about-heading">About the project</h2>
+      <p>
+        The system is delivered in stages, each independently testable and each stopping
+        short of claiming results it has not earned. Stages 1 to 7 are built: the data
+        pipeline, model training, the prediction API, live TomTom and Open-Meteo
+        collection, the real-time prediction engine, and this dashboard.
+      </p>
+      <p>
+        The model was trained on a clearly labelled simulated dataset, so its forecasts
+        demonstrate the pipeline rather than real-world accuracy. The dashboard states
+        that wherever a forecast is shown.
+      </p>
+      <p>
+        Full setup instructions, the architecture overview and the stage roadmap are in
+        <code>README.md</code>; deeper design notes are in <code>docs/</code>.
+      </p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>
+        AI-Based Urban Traffic Congestion Prediction System &mdash; Stage 7 dashboard.
+        <span class="footer-muted">Backend: FastAPI &middot; Data: PostgreSQL &middot; ML: scikit-learn</span>
+      </p>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

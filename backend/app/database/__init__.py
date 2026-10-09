@@ -1,0 +1,1 @@
+"""Persistence layer: SQLAlchemy declarative base, engine and sessions."""

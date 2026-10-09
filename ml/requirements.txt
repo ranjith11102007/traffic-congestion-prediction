@@ -1,0 +1,16 @@
+# Machine-learning dependencies.
+#
+# Kept separate from backend/requirements.txt on purpose: the ML pipeline is an
+# independent module and must be installable (and runnable) without FastAPI.
+#
+# Install: pip install -r ml/requirements.txt
+
+numpy>=1.26.0,<3.0.0
+pandas>=2.2.0,<3.0.0
+scikit-learn>=1.5.0,<2.0.0
+joblib>=1.4.0,<2.0.0
+
+# Used only to render the confusion-matrix figure in ml/evaluate.py. The module
+# degrades gracefully to text-only output if it is absent, so this is optional
+# in a minimal deployment.
+matplotlib>=3.8.0,<4.0.0

@@ -1,0 +1,9 @@
+# Project configuration for pytest and tooling.
+#
+# NOTE: TOML has no docstring syntax, so this file uses comments only.
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+pythonpath = ["backend"]
+addopts = "-ra --strict-markers"

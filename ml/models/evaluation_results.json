@@ -1,0 +1,280 @@
+{
+  "evaluated_at": "2026-10-05T10:15:40.166856+00:00",
+  "model_name": "random_forest",
+  "model_display_name": "Random Forest Classifier",
+  "model_type": "RandomForestClassifier",
+  "model_version": "4.0.0",
+  "trained_at": "2026-10-05T10:15:21.889413+00:00",
+  "dataset": {
+    "name": "traffic_processed.csv",
+    "rows_total": 1980,
+    "training_records": 1584,
+    "test_records": 396,
+    "is_simulated": true
+  },
+  "target_name": "congestion_level",
+  "label_mapping": {
+    "0": "free_flow",
+    "1": "moderate",
+    "2": "heavy",
+    "3": "severe"
+  },
+  "split": {
+    "strategy": "chronological",
+    "cutoff": "2026-01-16 05:00:00",
+    "train_time_range": [
+      "2026-01-05 06:00:00",
+      "2026-01-16 05:00:00"
+    ],
+    "test_time_range": [
+      "2026-01-16 06:00:00",
+      "2026-01-18 23:00:00"
+    ],
+    "note": "Identical to training: the boundary is read from model_metadata.json, not recomputed."
+  },
+  "train_class_distribution": {
+    "0": 389,
+    "1": 716,
+    "2": 322,
+    "3": 157
+  },
+  "test_class_distribution": {
+    "0": 44,
+    "1": 297,
+    "2": 40,
+    "3": 15
+  },
+  "metrics": {
+    "accuracy": 0.863636,
+    "balanced_accuracy": 0.772012,
+    "precision_macro": 0.757091,
+    "recall_macro": 0.772012,
+    "f1_macro": 0.762453,
+    "precision_weighted": 0.861268,
+    "recall_weighted": 0.863636,
+    "f1_weighted": 0.861991,
+    "macro_f1_is_primary": true,
+    "per_class": {
+      "0": {
+        "label_name": "free_flow",
+        "precision": 0.6,
+        "recall": 0.545455,
+        "f1": 0.571429,
+        "support": 44
+      },
+      "1": {
+        "label_name": "moderate",
+        "precision": 0.916667,
+        "recall": 0.925926,
+        "f1": 0.921273,
+        "support": 297
+      },
+      "2": {
+        "label_name": "heavy",
+        "precision": 0.789474,
+        "recall": 0.75,
+        "f1": 0.769231,
+        "support": 40
+      },
+      "3": {
+        "label_name": "severe",
+        "precision": 0.722222,
+        "recall": 0.866667,
+        "f1": 0.787879,
+        "support": 15
+      }
+    },
+    "confusion_matrix": [
+      [
+        24,
+        20,
+        0,
+        0
+      ],
+      [
+        16,
+        275,
+        6,
+        0
+      ],
+      [
+        0,
+        5,
+        30,
+        5
+      ],
+      [
+        0,
+        0,
+        2,
+        13
+      ]
+    ],
+    "confusion_matrix_labels": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "classification_report": "              precision    recall  f1-score   support\n\n   free_flow     0.6000    0.5455    0.5714        44\n    moderate     0.9167    0.9259    0.9213       297\n       heavy     0.7895    0.7500    0.7692        40\n      severe     0.7222    0.8667    0.7879        15\n\n    accuracy                         0.8636       396\n   macro avg     0.7571    0.7720    0.7625       396\nweighted avg     0.8613    0.8636    0.8620       396\n",
+    "evaluated_rows": 396
+  },
+  "majority_class_baseline": {
+    "strategy": "always predict the most frequent training class",
+    "majority_class": 1,
+    "majority_class_name": "moderate",
+    "training_share": 0.45202,
+    "accuracy": 0.75,
+    "balanced_accuracy": 0.25,
+    "f1_macro": 0.214286,
+    "recall_macro": 0.25
+  },
+  "baseline_comparison": {
+    "accuracy_delta": 0.113636,
+    "macro_f1_delta": 0.548167,
+    "beats_baseline_on_accuracy": true,
+    "beats_baseline_on_macro_f1": true,
+    "verdict": "beats the majority-class baseline on both accuracy and macro F1",
+    "note": "A chronological split cannot be stratified, so the test window's class proportions differ from the full dataset. Macro F1 weights all classes equally and is the fairer comparison."
+  },
+  "class_imbalance_warning": "class 3 is 9.9% of the training data; class 3 has only 15 test rows, so its per-class scores are unstable",
+  "feature_count": 26,
+  "features": [
+    "free_flow_speed_kph",
+    "temperature_c",
+    "precipitation_mm",
+    "is_incident",
+    "hour",
+    "day_of_week",
+    "day_of_month",
+    "is_weekend",
+    "month",
+    "avg_speed_kph_lag_1",
+    "speed_ratio_lag_1",
+    "avg_speed_kph_lag_2",
+    "speed_ratio_lag_2",
+    "avg_speed_kph_lag_3",
+    "speed_ratio_lag_3",
+    "speed_ratio_rolling_mean_3",
+    "speed_ratio_rolling_mean_6",
+    "road_segment_id__SEG_01",
+    "road_segment_id__SEG_02",
+    "road_segment_id__SEG_03",
+    "road_segment_id__SEG_04",
+    "road_segment_id__SEG_05",
+    "road_segment_id__SEG_06",
+    "weather_condition__clear",
+    "weather_condition__cloudy",
+    "weather_condition__rain"
+  ],
+  "sklearn_version": "1.9.1",
+  "feature_importance": [
+    {
+      "feature": "speed_ratio_lag_1",
+      "importance": 0.181918
+    },
+    {
+      "feature": "avg_speed_kph_lag_1",
+      "importance": 0.133236
+    },
+    {
+      "feature": "hour",
+      "importance": 0.130945
+    },
+    {
+      "feature": "temperature_c",
+      "importance": 0.089847
+    },
+    {
+      "feature": "speed_ratio_rolling_mean_3",
+      "importance": 0.069392
+    },
+    {
+      "feature": "speed_ratio_lag_2",
+      "importance": 0.06233
+    },
+    {
+      "feature": "speed_ratio_rolling_mean_6",
+      "importance": 0.059563
+    },
+    {
+      "feature": "speed_ratio_lag_3",
+      "importance": 0.056297
+    },
+    {
+      "feature": "avg_speed_kph_lag_3",
+      "importance": 0.05135
+    },
+    {
+      "feature": "avg_speed_kph_lag_2",
+      "importance": 0.046588
+    },
+    {
+      "feature": "day_of_week",
+      "importance": 0.030145
+    },
+    {
+      "feature": "is_weekend",
+      "importance": 0.023608
+    },
+    {
+      "feature": "day_of_month",
+      "importance": 0.014304
+    },
+    {
+      "feature": "road_segment_id__SEG_06",
+      "importance": 0.01304
+    },
+    {
+      "feature": "free_flow_speed_kph",
+      "importance": 0.012403
+    },
+    {
+      "feature": "road_segment_id__SEG_05",
+      "importance": 0.006041
+    },
+    {
+      "feature": "road_segment_id__SEG_02",
+      "importance": 0.003591
+    },
+    {
+      "feature": "road_segment_id__SEG_03",
+      "importance": 0.003563
+    },
+    {
+      "feature": "road_segment_id__SEG_04",
+      "importance": 0.00308
+    },
+    {
+      "feature": "road_segment_id__SEG_01",
+      "importance": 0.002809
+    },
+    {
+      "feature": "weather_condition__clear",
+      "importance": 0.002041
+    },
+    {
+      "feature": "precipitation_mm",
+      "importance": 0.001965
+    },
+    {
+      "feature": "weather_condition__rain",
+      "importance": 0.001123
+    },
+    {
+      "feature": "weather_condition__cloudy",
+      "importance": 0.000494
+    },
+    {
+      "feature": "is_incident",
+      "importance": 0.000328
+    },
+    {
+      "feature": "month",
+      "importance": 0.0
+    }
+  ],
+  "confusion_matrix_image": "C:\\Users\\RANJITH T\\Desktop\\TV\\ml\\models\\confusion_matrix.png",
+  "results_path": "C:\\Users\\RANJITH T\\Desktop\\TV\\ml\\models\\evaluation_results.json",
+  "report_path": "C:\\Users\\RANJITH T\\Desktop\\TV\\ml\\models\\model_report.md"
+}
