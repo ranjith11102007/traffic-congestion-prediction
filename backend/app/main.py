@@ -11,6 +11,7 @@ build an isolated instance instead of importing a module-level singleton.
 from __future__ import annotations
 
 import logging
+import sys
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
@@ -20,7 +21,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.api.router import api_router
-from app.core.config import get_settings
+from app.core.config import PROJECT_ROOT, get_settings
 from app.core.exceptions import (
     ConfigurationError,
     register_exception_handlers,
@@ -28,6 +29,14 @@ from app.core.exceptions import (
 from app.core.logging_config import configure_logging
 
 logger = logging.getLogger(__name__)
+
+# The repository is imported at request time (e.g. ``ml`` for model inference).
+# ``python -m uvicorn`` adds the working directory to sys.path, but the
+# pip-installed ``uvicorn`` binary and Docker do not. Because this file is
+# always imported before any route runs, pin the project root onto sys.path so
+# hosted deployments resolve ``ml`` regardless of how the server was started.
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 API_DESCRIPTION = """
 Backend for the **AI-Based Urban Traffic Congestion Prediction System**.
